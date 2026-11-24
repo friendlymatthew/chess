@@ -11,6 +11,13 @@ struct Board {
     white_turn: bool,
 }
 
+impl Board {
+    fn print(&self) {
+        let b = self.white | self.black;
+        println!("{:?}", b)
+    }
+}
+
 struct Move {
     is_take: bool,
     //          e  4 = 20
@@ -48,9 +55,13 @@ impl<'a> From<&'a str> for Move {
 
 impl Board {
     fn make_move(&mut self, chess_move: &str) {
-        let chess_move = Move::from(chess_move);
+        let Move {
+            is_take,
+            start_position,
+            end_position,
+        } = Move::from(chess_move);
 
-        if chess_move.is_take {
+        if is_take {
             todo!("how do we take? ")
         }
 
@@ -66,12 +77,6 @@ impl Board {
         // 2. update the position
         // wp & ((at start_position = 0) | (at end_position = 1))
 
-        let Move {
-            is_take,
-            start_position,
-            end_position,
-        } = Move::from(chess_move);
-
         if is_take {
             if self.white_turn {}
         } else {
@@ -86,7 +91,6 @@ impl Board {
                 }
             }
         }
-        todo!()
     }
 
     fn is_valid(&self, side: Bitboard, position: Bitboard) -> bool {
@@ -104,8 +108,35 @@ impl Default for Board {
     }
 }
 
-fn main() {
-    let _b = Board::default();
+use std::io::{self, Write};
+
+fn main() -> io::Result<()> {
+    let mut board = Board::default();
+    let mut input = String::new();
+
+    board.print();
+
+    loop {
+        print!("> ");
+        io::stdout().flush()?;
+
+        input.clear();
+
+        if io::stdin().read_line(&mut input)? == 0 {
+            break;
+        }
+
+        match input.trim() {
+            "exit" | "quit" => break,
+            "" => continue,
+            cmd => {
+                board.make_move(cmd);
+                board.print();
+            }
+        }
+    }
+
+    Ok(())
 }
 
 #[cfg(test)]
