@@ -388,4 +388,20 @@ mod tests {
         assert_eq!(board.white, Move::to_position("d4"));
         assert!(!board.white_turn);
     }
+
+    #[test]
+    fn white_pawn_takes_en_passant() {
+        let mut board = Board {
+            white: Move::to_position("e5"),
+            black: Move::to_position("d5"),
+            white_turn: true,
+            last_move: Move::try_from("d7 d5").unwrap(),
+        };
+
+        board.make_move("e5 take d6").unwrap();
+
+        assert_eq!(board.white, Move::to_position("d6"));
+        assert_eq!(board.black, Bitboard::from(0));
+        assert!(!board.white_turn);
+    }
 }
