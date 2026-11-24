@@ -11,6 +11,7 @@ struct Board {
     black: Bitboard,
 
     white_turn: bool,
+    last_move: Move,
 }
 
 impl Board {
@@ -32,6 +33,7 @@ impl Board {
     }
 }
 
+#[derive(Clone, Copy, PartialEq)]
 struct Move {
     is_take: bool,
     //          e  4 = 20
@@ -45,6 +47,16 @@ impl Move {
         let col: u64 = (s_bytes[0] - b'a').into();
         let row: u64 = (s_bytes[1] - b'1').into();
         ((1 << col) << (row * RANK)).into()
+    }
+}
+
+impl Default for Move {
+    fn default() -> Self {
+        Move {
+            is_take: false,
+            start_position: Bitboard::from(0),
+            end_position: Bitboard::from(0),
+        }
     }
 }
 
@@ -69,11 +81,13 @@ impl<'a> From<&'a str> for Move {
 
 impl Board {
     fn make_move(&mut self, chess_move: &str) -> Result<()> {
+        let next_move = Move::from(chess_move);
+
         let Move {
             is_take,
             start_position,
             end_position,
-        } = Move::from(chess_move);
+        } = next_move;
 
         // validation
         {
@@ -130,14 +144,10 @@ impl Board {
                 bail!("invalid start position");
             }
 
-            if *opp & end_position == 0 {
-                bail!("invalid end position");
-            }
-
-            let forward = if self.white_turn {
-                start_position << RANK
+            let (forward, enp) = if self.white_turn {
+                (start_position << RANK, end_position >> RANK)
             } else {
-                start_position >> RANK
+                (start_position >> RANK, end_position << RANK)
             };
             let diag0 = forward << 1;
             let diag1 = forward >> 1;
@@ -146,14 +156,25 @@ impl Board {
                 bail!("invalid taking move");
             }
 
-            *side ^= start_position | end_position;
-            *opp ^= end_position;
+            // check that the opponent is there to be taken
+            if *opp & end_position != 0 {
+                // normal take, fine
+                *side ^= start_position | end_position;
+                *opp ^= end_position;
+            } else if *opp & enp & self.last_move.end_position != 0 {
+                // en passant take, fine
+                *side ^= start_position | end_position;
+                *opp ^= self.last_move.end_position;
+            } else {
+                bail!("invalid take position");
+            }
         } else {
             let mask = start_position | end_position;
             *side ^= mask;
         }
 
         self.white_turn = !self.white_turn;
+        self.last_move = next_move;
 
         Ok(())
     }
@@ -165,6 +186,7 @@ impl Default for Board {
             white: Bitboard::from(0b1111_1111) << RANK,
             black: Bitboard::from(0b1111_1111) << (RANK * 6),
             white_turn: true,
+            last_move: Move::default(),
         }
     }
 }
@@ -281,6 +303,7 @@ mod tests {
             white: Move::to_position("e4"),
             black: Move::to_position("e5"),
             white_turn: true,
+            last_move: Move::default(),
         };
         assert!(board.make_move("e4 e5").is_err());
         board.white_turn = false;
@@ -309,6 +332,7 @@ mod tests {
             white: Move::to_position("e4"),
             black: Move::to_position("d5"),
             white_turn: false,
+            last_move: Move::default(),
         };
 
         board.make_move("d5 take e4").unwrap();
@@ -346,6 +370,7 @@ mod tests {
             white: Move::to_position("d4"),
             black: Move::to_position("d5"),
             white_turn: false,
+            last_move: Move::default(),
         };
 
         assert!(board.make_move("d5 take d4").is_err());
