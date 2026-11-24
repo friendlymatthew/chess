@@ -1,5 +1,6 @@
 use std::{
-    fmt::Debug, ops::{BitAnd, BitOr, BitXorAssign, Shl},
+    fmt::Debug,
+    ops::{BitAnd, BitOr, BitXorAssign, Shl},
 };
 
 /// A `BitBoard` is just an abstraction over a u64
