@@ -1,13 +1,12 @@
 use std::{
-    fmt::Debug,
-    ops::{BitOr, Shl},
+    fmt::Debug, ops::{BitAnd, BitOr, BitXorAssign, Shl},
 };
 
 /// A `BitBoard` is just an abstraction over a u64
 ///
 /// This way it's easy to debug by printing the actual board,
 /// rather than a random number
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, PartialOrd)]
 pub struct Bitboard(pub(crate) u64);
 
 impl From<u64> for Bitboard {
@@ -21,6 +20,28 @@ impl BitOr<u64> for Bitboard {
 
     fn bitor(self, rhs: u64) -> Self::Output {
         Self(self.0 | rhs)
+    }
+}
+
+impl BitOr for Bitboard {
+    type Output = Self;
+
+    fn bitor(self, rhs: Self) -> Self::Output {
+        Self(self.0 | rhs.0)
+    }
+}
+
+impl BitXorAssign for Bitboard {
+    fn bitxor_assign(&mut self, rhs: Self) {
+        self.0 ^= rhs.0;
+    }
+}
+
+impl BitAnd for Bitboard {
+    type Output = Self;
+
+    fn bitand(self, rhs: Self) -> Self::Output {
+        Self(self.0 & rhs.0)
     }
 }
 

@@ -66,7 +66,30 @@ impl Board {
         // 2. update the position
         // wp & ((at start_position = 0) | (at end_position = 1))
 
+        let Move {
+            is_take,
+            start_position,
+            end_position,
+        } = Move::from(chess_move);
+
+        if is_take {
+            if self.white_turn {}
+        } else {
+            if self.white_turn {
+                if self.is_valid(self.white, start_position) {
+                    self.white ^= start_position | end_position;
+                }
+            } else {
+                if self.is_valid(self.black, start_position) {
+                    let mask = start_position | end_position;
+                    self.black ^= mask;
+                }
+            }
+        }
         todo!()
+    }
+    fn is_valid(&self, side: Bitboard, position: Bitboard) -> bool {
+        (side & position) > Bitboard(0)
     }
 }
 
