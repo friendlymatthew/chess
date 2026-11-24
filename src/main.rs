@@ -73,7 +73,36 @@ impl Board {
             end_position,
         } = Move::from(chess_move);
 
-        // pawn push
+        // validation
+        {
+            let start_rank = start_position.0.trailing_zeros() / 8;
+            let end_rank = end_position.0.trailing_zeros() / 8;
+
+            // e3 to e3 is invalid
+            if start_position == end_position {
+                return None;
+            }
+
+            // you can't go backwards
+            if self.white_turn && start_rank > end_rank {
+                return None;
+            }
+
+            if !self.white_turn && start_rank < end_rank {
+                return None;
+            }
+
+            // you must be jumping from a valid square
+            let side = if self.white_turn {
+                self.white
+            } else {
+                self.black
+            };
+
+            if !((side & start_position).0 > 0) {
+                return None;
+            }
+        }
 
         // we have our white pieces (wp)
         // we work backwards
@@ -85,44 +114,36 @@ impl Board {
         // 2. update the position
         // wp & ((at start_position = 0) | (at end_position = 1))
 
-        let (side, opp) =
-            if self.white_turn {
-                (&mut self.white, &mut self.black)
-            } else {
-                (&mut self.black, &mut self.white)
-            };
+        let (side, opp) = if self.white_turn {
+            (&mut self.white, &mut self.black)
+        } else {
+            (&mut self.black, &mut self.white)
+        };
 
         if is_take {
             if *side & start_position == 0 {
-                panic!("invalid start positiono");
+                return None;
             }
 
             if *opp & end_position == 0 {
-                panic!("invalid end position");
+                return None;
             }
 
-            let forward =
-                if self.white_turn {
-                    start_position << RANK
-                } else {
-                    start_position >> RANK
-                };
+            let forward = if self.white_turn {
+                start_position << RANK
+            } else {
+                start_position >> RANK
+            };
             let diag0 = forward << 1;
             let diag1 = forward >> 1;
 
             if end_position != diag0 && end_position != diag1 {
-                panic!("invalid taking move");
+                return None;
             }
 
             *side ^= start_position | end_position;
             *opp ^= end_position;
         } else {
-            let is_valid = Self::is_valid(*side, start_position);
-
-            if !is_valid {
-                return None;
-            }
-
             let mask = start_position | end_position;
             *side ^= mask;
         }
@@ -131,10 +152,6 @@ impl Board {
 
         // pass
         Some(())
-    }
-
-    fn is_valid(side: Bitboard, position: Bitboard) -> bool {
-        (side & position).0 > 0
     }
 }
 
@@ -193,14 +210,14 @@ mod tests {
     fn to_position_a1_is_bottom_left() {
         insta::assert_debug_snapshot!(Move::to_position("a1"), @"
 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        1 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        1 0 0 0 0 0 0 0
         ");
     }
 
@@ -208,14 +225,14 @@ mod tests {
     fn to_position_a8_is_bottom_right() {
         insta::assert_debug_snapshot!(Move::to_position("h1"), @"
 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 1 
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 1
         ");
     }
 
@@ -223,14 +240,14 @@ mod tests {
     fn to_position_h8_is_top_right() {
         insta::assert_debug_snapshot!(Move::to_position("h8"), @"
 
-        0 0 0 0 0 0 0 1 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 1
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
         ");
     }
 
@@ -277,25 +294,25 @@ mod tests {
 
         insta::assert_debug_snapshot!(board.black, @"
 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 1 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 1 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
         ");
         insta::assert_debug_snapshot!(board.white, @"
 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
         ");
         assert!(board.white_turn);
     }
