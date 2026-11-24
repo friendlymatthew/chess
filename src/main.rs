@@ -16,7 +16,9 @@ struct Board {
 impl Board {
     fn print(&self) {
         for rank in (0..8).rev() {
-            for file in (0..8) {
+            print!("{}  ", rank + 1);
+
+            for file in 0..8 {
                 let mask = 1u64 << (rank * 8 + file);
 
                 if self.white.0 & mask != 0 {
@@ -29,6 +31,8 @@ impl Board {
             }
             println!();
         }
+
+        println!("\n   a b c d e f g h");
     }
 }
 
@@ -275,7 +279,7 @@ mod tests {
         assert!(!b.white_turn);
     }
 
-        #[test]
+    #[test]
     fn pawn_cannot_move_with_opp_pawn_in_front() {
         let mut board = Board {
             white: Move::to_position("e4"),
