@@ -17,7 +17,7 @@ struct Board {
 impl Board {
     fn print(&self) {
         for rank in (0..8).rev() {
-            for file in (0..8) {
+            for file in 0..8 {
                 let mask = 1u64 << (rank * 8 + file);
 
                 if self.white.0 & mask != 0 {
