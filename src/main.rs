@@ -14,10 +14,31 @@ struct Move {
     end_position: u64,
 }
 
+impl Move {
+    fn to_position(s: &str) -> u64 {
+        let s_bytes = s.as_bytes();
+        let col: u64 = (s_bytes[0] - 'a' as u8).into();
+        let row: u64 = (s_bytes[1] - '1' as u8).into();
+        (1 << col) << (row * RANK)
+    }
+}
+
 impl<'a> From<&'a str> for Move {
     fn from(value: &'a str) -> Self {
         // how do we parse into a move
-        todo!()
+        let mut parts = value.split_ascii_whitespace();
+        let start = parts.next().unwrap();
+        let mut end = parts.next().unwrap();
+        let is_take = end == "take";
+        if is_take {
+            end = parts.next().unwrap();
+        }
+
+        Move{
+            is_take,
+            start_position: Move::to_position(start),
+            end_position: Move::to_position(end),
+        }
     }
 }
 
@@ -71,4 +92,40 @@ fn main() {
     let b = Board::default();
 
     print_bitboard(b.white | b.black);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn to_position_a1_is_bottom_left() {
+        assert_eq!(Move::to_position("a1"), 1);
+    }
+
+    #[test]
+    fn to_position_a8_is_bottom_right() {
+        assert_eq!(Move::to_position("h1"), 1 << 7);
+    }
+
+    #[test]
+    fn to_position_h8_is_top_right() {
+        assert_eq!(Move::to_position("h8"), (1 << 7) << 56);
+    }
+
+    #[test]
+    fn from_parses_simple_move() {
+        let m = Move::from("e2 e4");
+        assert!(!m.is_take);
+        assert_eq!(m.start_position, Move::to_position("e2"));
+        assert_eq!(m.end_position, Move::to_position("e4"));
+    }
+
+    #[test]
+    fn from_parses_take_move() {
+        let m = Move::from("e4 take d5");
+        assert!(m.is_take);
+        assert_eq!(m.start_position, Move::to_position("e4"));
+        assert_eq!(m.end_position, Move::to_position("d5"));
+    }
 }
