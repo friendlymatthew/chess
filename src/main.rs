@@ -91,6 +91,11 @@ impl Board {
                 ensure!(start_rank > end_rank, "black can't go backwards");
             }
 
+            ensure!(
+                (end_position & (self.black | self.white)).0 == 0,
+                "can't go to an occupied position"
+            );
+
             // you must be jumping from a valid square
             let side = if self.white_turn {
                 self.white
@@ -209,13 +214,13 @@ mod tests {
     fn to_position_a1_is_bottom_left() {
         insta::assert_debug_snapshot!(Move::to_position("a1"), @"
 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
         1 0 0 0 0 0 0 0
         ");
     }
@@ -224,13 +229,13 @@ mod tests {
     fn to_position_a8_is_top_left() {
         insta::assert_debug_snapshot!(Move::to_position("a8"), @"
 
-        1 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
+        1 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
         0 0 0 0 0 0 0 0
         ");
     }
@@ -239,13 +244,13 @@ mod tests {
     fn to_position_h8_is_top_right() {
         insta::assert_debug_snapshot!(Move::to_position("h8"), @"
 
-        0 0 0 0 0 0 0 1 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 1
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
         0 0 0 0 0 0 0 0
         ");
     }
@@ -268,6 +273,18 @@ mod tests {
         b.make_move("e2 e3").unwrap();
         assert!(b.make_move("e6 e7").is_err());
         assert!(!b.white_turn);
+    }
+
+        #[test]
+    fn pawn_cannot_move_with_opp_pawn_in_front() {
+        let mut board = Board {
+            white: Move::to_position("e4"),
+            black: Move::to_position("e5"),
+            white_turn: true,
+        };
+        assert!(board.make_move("e4 e5").is_err());
+        board.white_turn = false;
+        assert!(board.make_move("e5 e4").is_err());
     }
 
     #[test]
@@ -298,25 +315,25 @@ mod tests {
 
         insta::assert_debug_snapshot!(board.black, @"
 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 1 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 1 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
         0 0 0 0 0 0 0 0
         ");
 
         insta::assert_debug_snapshot!(board.white, @"
 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
         0 0 0 0 0 0 0 0
         ");
 
