@@ -31,7 +31,15 @@ impl Board {
 
         // pawn push
 
-        // we have th
+        // we have our white pieces (wp)
+        // we work backwards
+        // if it's going to e4, it must be either in e3 or e2
+        //
+        // 1. we check if wp bits are set at e3 or e2 (wp & (e3 or e2))
+        // if false => illegal move
+        //
+        // 2. update the position
+        // wp & ((at start_position = 0) | (at end_position = 1))
 
         todo!()
     }
