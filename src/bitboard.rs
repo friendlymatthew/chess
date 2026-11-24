@@ -74,8 +74,8 @@ impl Debug for Bitboard {
 
         writeln!(f)?;
 
-        for rank in 0..8 {
-            for file in (0..8).rev() {
+        for rank in (0..8).rev() {
+            for file in 0..8 {
                 let mask = 1u64 << (LAST_BIT - rank * 8 - file);
                 let ch = if self.0 & mask != 0 { '1' } else { '0' };
                 write!(f, "{ch} ")?;
