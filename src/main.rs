@@ -93,8 +93,6 @@ impl Board {
                 }
             }
         }
-
-        self.white_turn = !self.white_turn;
     }
 
     fn is_valid(&self, side: Bitboard, position: Bitboard) -> bool {
