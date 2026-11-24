@@ -66,7 +66,7 @@ impl<'a> From<&'a str> for Move {
 }
 
 impl Board {
-    fn make_move(&mut self, chess_move: &str) {
+    fn make_move(&mut self, chess_move: &str) -> Option<()> {
         let Move {
             is_take,
             start_position,
@@ -107,7 +107,7 @@ impl Board {
             let is_valid = Self::is_valid(*side, start_position);
 
             if !is_valid {
-                // return some error here
+                return None;
             }
 
             let mask = start_position | end_position;
@@ -115,6 +115,9 @@ impl Board {
         }
 
         self.white_turn = !self.white_turn;
+
+        // pass
+        Some(())
     }
 
     fn is_valid(side: Bitboard, position: Bitboard) -> bool {
@@ -154,10 +157,16 @@ fn main() -> io::Result<()> {
             "exit" | "quit" => break,
             "" => continue,
             cmd => {
-                board.make_move(cmd);
+                if let None = board.make_move(cmd) {
+                    println!("invalid move!")
+                }
+
                 board.print();
             }
         }
+
+        println!("");
+        println!("");
     }
 
     Ok(())
@@ -171,14 +180,14 @@ mod tests {
     fn to_position_a1_is_bottom_left() {
         insta::assert_debug_snapshot!(Move::to_position("a1"), @"
 
-        0 0 0 0 0 0 0 0
-        0 0 0 0 0 0 0 0
-        0 0 0 0 0 0 0 0
-        0 0 0 0 0 0 0 0
-        0 0 0 0 0 0 0 0
-        0 0 0 0 0 0 0 0
-        0 0 0 0 0 0 0 0
-        1 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        1 0 0 0 0 0 0 0 
         ");
     }
 
@@ -186,14 +195,14 @@ mod tests {
     fn to_position_a8_is_bottom_right() {
         insta::assert_debug_snapshot!(Move::to_position("h1"), @"
 
-        0 0 0 0 0 0 0 0
-        0 0 0 0 0 0 0 0
-        0 0 0 0 0 0 0 0
-        0 0 0 0 0 0 0 0
-        0 0 0 0 0 0 0 0
-        0 0 0 0 0 0 0 0
-        0 0 0 0 0 0 0 0
-        0 0 0 0 0 0 0 1
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 1 
         ");
     }
 
@@ -208,9 +217,24 @@ mod tests {
         0 0 0 0 0 0 0 0 
         0 0 0 0 0 0 0 0 
         0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0 
         ");
     }
+
+    #[test]
+    fn e5_to_e7_is_invalid() {
+        let mut b = Board::default();
+
+        assert!(b.make_move("e5 e6").is_none());
+    }
+
+    // todo: fix me
+    //     #[test]
+    //     fn pawns_going_backwards_is_invalid() {
+    //         let mut b = Board::default();
+    //
+    //         assert!(b.make_move("e2 e1").is_none());
+    //     }
 
     #[test]
     fn from_parses_simple_move() {
