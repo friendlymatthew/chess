@@ -83,11 +83,13 @@ impl Board {
             if self.white_turn {
                 if self.is_valid(self.white, start_position) {
                     self.white ^= start_position | end_position;
+                    self.white_turn = !self.white_turn;
                 }
             } else {
                 if self.is_valid(self.black, start_position) {
                     let mask = start_position | end_position;
                     self.black ^= mask;
+                    self.white_turn = !self.white_turn;
                 }
             }
         }
