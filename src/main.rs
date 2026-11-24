@@ -1,3 +1,5 @@
+use anyhow::{Result, bail, ensure};
+
 use crate::bitboard::Bitboard;
 
 mod bitboard;
@@ -66,7 +68,7 @@ impl<'a> From<&'a str> for Move {
 }
 
 impl Board {
-    fn make_move(&mut self, chess_move: &str) -> Option<()> {
+    fn make_move(&mut self, chess_move: &str) -> Result<()> {
         let Move {
             is_take,
             start_position,
@@ -79,18 +81,18 @@ impl Board {
             let end_rank = end_position.0.trailing_zeros() / 8;
 
             // e3 to e3 is invalid
-            if start_position == end_position {
-                return None;
-            }
+            ensure!(start_position != end_position, "you must move");
 
             // you can't go backwards
-            if self.white_turn && start_rank > end_rank {
-                return None;
-            }
+            ensure!(
+                self.white_turn && start_rank > end_rank,
+                "white can't go backwards"
+            );
 
-            if !self.white_turn && start_rank < end_rank {
-                return None;
-            }
+            ensure!(
+                !self.white_turn && start_rank < end_rank,
+                "black can't go backwards"
+            );
 
             // you must be jumping from a valid square
             let side = if self.white_turn {
@@ -99,9 +101,10 @@ impl Board {
                 self.black
             };
 
-            if !((side & start_position).0 > 0) {
-                return None;
-            }
+            ensure!(
+                (side & start_position).0 > 0,
+                "you must jump from a valid square"
+            );
         }
 
         // we have our white pieces (wp)
@@ -122,11 +125,11 @@ impl Board {
 
         if is_take {
             if *side & start_position == 0 {
-                return None;
+                bail!("invalid start position");
             }
 
             if *opp & end_position == 0 {
-                return None;
+                bail!("invalid end position");
             }
 
             let forward = if self.white_turn {
@@ -138,7 +141,7 @@ impl Board {
             let diag1 = forward >> 1;
 
             if end_position != diag0 && end_position != diag1 {
-                return None;
+                bail!("invalid taking move");
             }
 
             *side ^= start_position | end_position;
@@ -150,8 +153,7 @@ impl Board {
 
         self.white_turn = !self.white_turn;
 
-        // pass
-        Some(())
+        Ok(())
     }
 }
 
@@ -187,8 +189,8 @@ fn main() -> io::Result<()> {
             "exit" | "quit" => break,
             "" => continue,
             cmd => {
-                if board.make_move(cmd).is_none() {
-                    println!("invalid move!")
+                if let Err(msg) = board.make_move(cmd) {
+                    println!("invalid move! {:?}", msg);
                 }
 
                 board.print();
