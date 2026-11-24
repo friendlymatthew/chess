@@ -15,8 +15,8 @@ struct Board {
 
 impl Board {
     fn print(&self) {
-        for rank in (0..8) {
-            for file in (0..8).rev() {
+        for rank in (0..8).rev() {
+            for file in (0..8) {
                 let mask = 1u64 << (rank * 8 + file);
 
                 if self.white.0 & mask != 0 {
@@ -209,13 +209,13 @@ mod tests {
     fn to_position_a1_is_bottom_left() {
         insta::assert_debug_snapshot!(Move::to_position("a1"), @"
 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
         1 0 0 0 0 0 0 0
         ");
     }
@@ -224,13 +224,13 @@ mod tests {
     fn to_position_a8_is_top_left() {
         insta::assert_debug_snapshot!(Move::to_position("a8"), @"
 
-        1 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
+        1 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
         0 0 0 0 0 0 0 0
         ");
     }
@@ -239,13 +239,13 @@ mod tests {
     fn to_position_h8_is_top_right() {
         insta::assert_debug_snapshot!(Move::to_position("h8"), @"
 
-        0 0 0 0 0 0 0 1 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 1
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
         0 0 0 0 0 0 0 0
         ");
     }
@@ -257,13 +257,12 @@ mod tests {
         assert!(b.make_move("e5 e6").is_err());
     }
 
-    // todo: fix me
-    //     #[test]
-    //     fn pawns_going_backwards_is_invalid() {
-    //         let mut b = Board::default();
-    //
-    //         assert!(b.make_move("e2 e1").is_none());
-    //     }
+    #[test]
+    fn pawns_going_backwards_is_invalid() {
+        let mut b = Board::default();
+
+        assert!(b.make_move("e2 e1").is_err());
+    }
 
     #[test]
     fn from_parses_simple_move() {
@@ -293,25 +292,25 @@ mod tests {
 
         insta::assert_debug_snapshot!(board.black, @"
 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 1 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 1 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
         0 0 0 0 0 0 0 0
         ");
 
         insta::assert_debug_snapshot!(board.white, @"
 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
-        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
         0 0 0 0 0 0 0 0
         ");
 

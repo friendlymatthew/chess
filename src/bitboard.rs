@@ -70,13 +70,11 @@ impl PartialEq<u64> for Bitboard {
 
 impl Debug for Bitboard {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        const LAST_BIT: u64 = 63;
-
         writeln!(f)?;
 
-        for rank in (0..8) {
-            for file in (0..8).rev() {
-                let mask = 1u64 << (LAST_BIT - rank * 8 - file);
+        for rank in (0..8).rev() {
+            for file in 0..8 {
+                let mask = 1u64 << (rank * 8 + file);
                 let ch = if self.0 & mask != 0 { '1' } else { '0' };
                 write!(f, "{ch} ")?;
             }
