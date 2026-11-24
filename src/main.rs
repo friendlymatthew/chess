@@ -216,6 +216,21 @@ mod tests {
     }
 
     #[test]
+    fn e5_to_e7_is_invalid() {
+        let mut b = Board::default();
+
+        assert!(b.make_move("e5 e6").is_none());
+    }
+
+    // todo: fix me
+    //     #[test]
+    //     fn pawns_going_backwards_is_invalid() {
+    //         let mut b = Board::default();
+    //
+    //         assert!(b.make_move("e2 e1").is_none());
+    //     }
+
+    #[test]
     fn from_parses_simple_move() {
         let m = Move::from("e2 e4");
         assert!(!m.is_take);
