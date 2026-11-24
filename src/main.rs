@@ -115,10 +115,10 @@ impl Board {
                 ensure!(start_rank > end_rank, "black can't go backwards");
             }
 
-            // ensure!(
-            //     (end_position & (self.black | self.white)).0 == 0,
-            //     "can't go to an occupied position"
-            // );
+            ensure!(
+                is_take || (end_position & (self.black | self.white)).0 == 0,
+                "can't go to an occupied position"
+            );
 
             // you must be jumping from a valid square
             let side = if self.white_turn {
