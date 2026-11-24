@@ -73,10 +73,6 @@ impl Board {
             end_position,
         } = Move::from(chess_move);
 
-        if is_take {
-            todo!("how do we take? ")
-        }
-
         // pawn push
 
         // we have our white pieces (wp)
@@ -89,16 +85,25 @@ impl Board {
         // 2. update the position
         // wp & ((at start_position = 0) | (at end_position = 1))
 
-        if is_take {
-            if self.white_turn {}
-        } else {
-            let side =
-                if self.white_turn {
-                    &mut self.white
-                } else {
-                    &mut self.black
-                };
+        let (side, opp) =
+            if self.white_turn {
+                (&mut self.white, &mut self.black)
+            } else {
+                (&mut self.black, &mut self.white)
+            };
 
+        if is_take {
+            if *side & start_position == 0 {
+                panic!("invalid start positiono");
+            }
+
+            if *opp & end_position == 0 {
+                panic!("invalid end position");
+            }
+
+            *side ^= start_position | end_position;
+            *opp ^= end_position;
+        } else {
             let is_valid = Self::is_valid(*side, start_position);
 
             if !is_valid {
@@ -221,5 +226,40 @@ mod tests {
         assert!(m.is_take);
         assert_eq!(m.start_position, Move::to_position("e4"));
         assert_eq!(m.end_position, Move::to_position("d5"));
+    }
+
+    #[test]
+    fn black_pawn_takes_from_d5_to_e4() {
+        let mut board = Board {
+            white: Move::to_position("e4"),
+            black: Move::to_position("d5"),
+            white_turn: false,
+        };
+
+        board.make_move("d5 take e4");
+
+        insta::assert_debug_snapshot!(board.black, @"
+
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 1 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        ");
+        insta::assert_debug_snapshot!(board.white, @"
+
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        ");
+        assert!(board.white_turn);
     }
 }
