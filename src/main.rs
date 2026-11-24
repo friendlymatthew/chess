@@ -13,8 +13,20 @@ struct Board {
 
 impl Board {
     fn print(&self) {
-        let b = self.white | self.black;
-        println!("{:?}", b)
+        for rank in (0..8).rev() {
+            for file in 0..8 {
+                let mask = 1u64 << (rank * 8 + file);
+
+                if self.white.0 & mask != 0 {
+                    print!("\x1b[32m1\x1b[0m ");
+                } else if self.black.0 & mask != 0 {
+                    print!("\x1b[31m1\x1b[0m ");
+                } else {
+                    print!("0 ");
+                }
+            }
+            println!();
+        }
     }
 }
 
