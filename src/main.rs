@@ -88,6 +88,7 @@ impl Board {
         }
         todo!()
     }
+
     fn is_valid(&self, side: Bitboard, position: Bitboard) -> bool {
         (side & position) > Bitboard(0)
     }
