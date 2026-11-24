@@ -44,10 +44,24 @@ impl<'a> From<&'a str> for Move {
 
 impl Board {
     fn make_move(&mut self, chess_move: &str) {
-        let chess_move = Move::from(chess_move);
+        let Move { is_take, start_position, end_position } = Move::from(chess_move);
 
-        if chess_move.is_take {
-            todo!("how do we take? ")
+        if is_take {
+            if self.white_turn {
+
+            }
+        } else {
+
+            if self.white_turn {
+                if self.is_valid(self.white, start_position) {
+                    self.white ^= start_position | end_position;
+                }
+            } else {
+                if self.is_valid(self.black, start_position) {
+                    let mask = start_position | end_position;
+                    self.black ^= mask;
+                }
+            }
         }
 
         // pawn push
@@ -63,6 +77,9 @@ impl Board {
         // wp & ((at start_position = 0) | (at end_position = 1))
 
         todo!()
+    }
+    fn is_valid(&self, side: u64, position: u64) -> bool {
+       (side & position) > 0
     }
 }
 
