@@ -40,8 +40,8 @@ struct Move {
 impl Move {
     fn to_position(s: &str) -> Bitboard {
         let s_bytes = s.as_bytes();
-        let col: u64 = (s_bytes[0] - 'a' as u8).into();
-        let row: u64 = (s_bytes[1] - '1' as u8).into();
+        let col: u64 = (s_bytes[0] - b'a').into();
+        let row: u64 = (s_bytes[1] - b'1').into();
         ((1 << col) << (row * RANK)).into()
     }
 }
@@ -157,7 +157,7 @@ fn main() -> io::Result<()> {
             "exit" | "quit" => break,
             "" => continue,
             cmd => {
-                if let None = board.make_move(cmd) {
+                if board.make_move(cmd).is_none() {
                     println!("invalid move!")
                 }
 
@@ -165,8 +165,8 @@ fn main() -> io::Result<()> {
             }
         }
 
-        println!("");
-        println!("");
+        println!();
+        println!();
     }
 
     Ok(())
