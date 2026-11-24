@@ -167,20 +167,47 @@ mod tests {
 
     #[test]
     fn to_position_a1_is_bottom_left() {
-        assert_eq!(Move::to_position("a1"), 1);
+        insta::assert_debug_snapshot!(Move::to_position("a1"), @"
+
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        1 0 0 0 0 0 0 0
+        ");
     }
 
     #[test]
     fn to_position_a8_is_bottom_right() {
-        assert_eq!(Move::to_position("h1"), 1 << 7);
+        insta::assert_debug_snapshot!(Move::to_position("h1"), @"
+
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 0
+        0 0 0 0 0 0 0 1
+        ");
     }
 
     #[test]
     fn to_position_h8_is_top_right() {
-        let chess_move = Move::to_position("h8");
-        dbg!(&chess_move);
+        insta::assert_debug_snapshot!(Move::to_position("h8"), @"
 
-        assert_eq!(Move::to_position("h8"), (1 << 7) << 56);
+        0 0 0 0 0 0 0 1 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0 
+        0 0 0 0 0 0 0 0
+        ");
     }
 
     #[test]
