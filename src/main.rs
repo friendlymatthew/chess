@@ -318,4 +318,18 @@ mod tests {
         ");
         assert!(board.white_turn);
     }
+
+    #[test]
+    fn black_pawn_cannot_take_straight_forward() {
+        let mut board = Board {
+            white: Move::to_position("d4"),
+            black: Move::to_position("d5"),
+            white_turn: false,
+        };
+
+        assert!(board.make_move("d5 take d4").is_none());
+        assert_eq!(board.black, Move::to_position("d5"));
+        assert_eq!(board.white, Move::to_position("d4"));
+        assert!(!board.white_turn);
+    }
 }
