@@ -80,23 +80,31 @@ impl Board {
         if is_take {
             if self.white_turn {}
         } else {
+            let is_valid = self.is_valid(start_position);
+
+            if !is_valid {
+                // return some error here
+            }
+
             if self.white_turn {
-                if self.is_valid(self.white, start_position) {
-                    self.white ^= start_position | end_position;
-                    self.white_turn = !self.white_turn;
-                }
+                self.white ^= start_position | end_position;
             } else {
-                if self.is_valid(self.black, start_position) {
-                    let mask = start_position | end_position;
-                    self.black ^= mask;
-                    self.white_turn = !self.white_turn;
-                }
+                let mask = start_position | end_position;
+                self.black ^= mask;
             }
         }
+
+        self.white_turn = !self.white_turn;
     }
 
-    fn is_valid(&self, side: Bitboard, position: Bitboard) -> bool {
-        (side & position) > Bitboard(0)
+    fn is_valid(&self, position: Bitboard) -> bool {
+        let side = if self.white_turn {
+            self.white
+        } else {
+            self.black
+        };
+
+        (side & position).0 > 0
     }
 }
 
