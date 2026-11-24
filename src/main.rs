@@ -9,8 +9,9 @@ struct Board {
 
 struct Move {
     is_take: bool,
-    //          e  4
-    position: (char, u8),
+    //          e  4 = 20
+    start_position: u64,
+    end_position: u64,
 }
 
 impl<'a> From<&'a str> for Move {
@@ -22,6 +23,16 @@ impl<'a> From<&'a str> for Move {
 
 impl Board {
     fn make_move(&mut self, chess_move: &str) {
+        let chess_move = Move::from(chess_move);
+
+        if chess_move.is_take {
+            todo!("how do we take? ")
+        }
+
+        // pawn push
+
+        // we have th
+
         todo!()
     }
 }
