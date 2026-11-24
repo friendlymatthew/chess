@@ -1,8 +1,12 @@
+use crate::bitboard::Bitboard;
+
+mod bitboard;
+
 const RANK: u64 = 8;
 
 struct Board {
-    white: u64,
-    black: u64,
+    white: Bitboard,
+    black: Bitboard,
 
     white_turn: bool,
 }
@@ -10,16 +14,16 @@ struct Board {
 struct Move {
     is_take: bool,
     //          e  4 = 20
-    start_position: u64,
-    end_position: u64,
+    start_position: Bitboard,
+    end_position: Bitboard,
 }
 
 impl Move {
-    fn to_position(s: &str) -> u64 {
+    fn to_position(s: &str) -> Bitboard {
         let s_bytes = s.as_bytes();
         let col: u64 = (s_bytes[0] - 'a' as u8).into();
         let row: u64 = (s_bytes[1] - '1' as u8).into();
-        (1 << col) << (row * RANK)
+        ((1 << col) << (row * RANK)).into()
     }
 }
 
@@ -34,7 +38,7 @@ impl<'a> From<&'a str> for Move {
             end = parts.next().unwrap();
         }
 
-        Move{
+        Move {
             is_take,
             start_position: Move::to_position(start),
             end_position: Move::to_position(end),
@@ -44,24 +48,10 @@ impl<'a> From<&'a str> for Move {
 
 impl Board {
     fn make_move(&mut self, chess_move: &str) {
-        let Move { is_take, start_position, end_position } = Move::from(chess_move);
+        let chess_move = Move::from(chess_move);
 
-        if is_take {
-            if self.white_turn {
-
-            }
-        } else {
-
-            if self.white_turn {
-                if self.is_valid(self.white, start_position) {
-                    self.white ^= start_position | end_position;
-                }
-            } else {
-                if self.is_valid(self.black, start_position) {
-                    let mask = start_position | end_position;
-                    self.black ^= mask;
-                }
-            }
+        if chess_move.is_take {
+            todo!("how do we take? ")
         }
 
         // pawn push
@@ -78,37 +68,20 @@ impl Board {
 
         todo!()
     }
-    fn is_valid(&self, side: u64, position: u64) -> bool {
-       (side & position) > 0
-    }
 }
 
 impl Default for Board {
     fn default() -> Self {
         Self {
-            white: 0b1111_1111 << RANK,
-            black: 0b1111_1111 << (RANK * 6),
+            white: Bitboard::from(0b1111_1111) << RANK,
+            black: Bitboard::from(0b1111_1111) << (RANK * 6),
             white_turn: true,
         }
     }
 }
 
-fn print_bitboard(bitboard: u64) {
-    const LAST_BIT: u64 = 63;
-    for rank in 0..8 {
-        for file in (0..8).rev() {
-            let mask = 1u64 << (LAST_BIT - (rank * 8) - file);
-            let char = if bitboard & mask != 0 { '1' } else { '0' };
-            print!("{char} ");
-        }
-        println!();
-    }
-}
-
 fn main() {
-    let b = Board::default();
-
-    print_bitboard(b.white | b.black);
+    let _b = Board::default();
 }
 
 #[cfg(test)]
@@ -127,6 +100,9 @@ mod tests {
 
     #[test]
     fn to_position_h8_is_top_right() {
+        let chess_move = Move::to_position("h8");
+        dbg!(&chess_move);
+
         assert_eq!(Move::to_position("h8"), (1 << 7) << 56);
     }
 
@@ -134,7 +110,7 @@ mod tests {
     fn from_parses_simple_move() {
         let m = Move::from("e2 e4");
         assert!(!m.is_take);
-        assert_eq!(m.start_position, Move::to_position("e2"));
+        assert_eq!(Move::to_position("e2"), m.start_position);
         assert_eq!(m.end_position, Move::to_position("e4"));
     }
 
