@@ -1,6 +1,6 @@
 use std::{
     fmt::Debug,
-    ops::{BitAnd, BitOr, BitXorAssign, Shl},
+    ops::{BitAnd, BitOr, BitXorAssign, Shl, Shr},
 };
 
 /// A `BitBoard` is just an abstraction over a u64
@@ -51,6 +51,14 @@ impl Shl<u64> for Bitboard {
 
     fn shl(self, rhs: u64) -> Self::Output {
         Self(self.0 << rhs)
+    }
+}
+
+impl Shr<u64> for Bitboard {
+    type Output = Self;
+
+    fn shr(self, rhs: u64) -> Self::Output {
+        Self(self.0 >> rhs)
     }
 }
 

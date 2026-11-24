@@ -101,6 +101,19 @@ impl Board {
                 panic!("invalid end position");
             }
 
+            let forward =
+                if self.white_turn {
+                    start_position << RANK
+                } else {
+                    start_position >> RANK
+                };
+            let diag0 = forward << 1;
+            let diag1 = forward >> 1;
+
+            if end_position != diag0 && end_position != diag1 {
+                panic!("invalid taking move");
+            }
+
             *side ^= start_position | end_position;
             *opp ^= end_position;
         } else {
