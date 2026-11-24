@@ -15,6 +15,8 @@ struct Board {
 
 impl Board {
     fn print(&self) {
+        println!("\n   a b c d e f g h");
+
         for rank in (0..8).rev() {
             print!("{}  ", rank + 1);
 
@@ -29,10 +31,12 @@ impl Board {
                     print!("0 ");
                 }
             }
+
+            print!(" {}", rank + 1);
             println!();
         }
 
-        println!("\n   a b c d e f g h");
+        println!("   a b c d e f g h");
     }
 }
 
