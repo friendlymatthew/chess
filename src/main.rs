@@ -262,6 +262,12 @@ mod tests {
         let mut b = Board::default();
 
         assert!(b.make_move("e2 e1").is_err());
+        assert!(b.white_turn);
+
+        // valid move
+        b.make_move("e2 e3").unwrap();
+        assert!(b.make_move("e6 e7").is_err());
+        assert!(!b.white_turn);
     }
 
     #[test]
